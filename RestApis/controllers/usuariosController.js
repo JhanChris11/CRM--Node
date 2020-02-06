@@ -1,7 +1,7 @@
 const Usuarios = require('../models/Usuarios');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
-
+require('dotenv').config({ path: 'variables.env' });
 // Crear cuentas
 //interactuar con la bd por lo tanto es async
 exports.registrarUsuario = async (req, res) => {
@@ -36,7 +36,7 @@ exports.autenticarUsuario = async (req, res, next) => {
     const usuario = await Usuarios.findOne({ email });
 
     if (!usuario) {
-        //Si el usuario no existe
+        //Si el usuario no existe , 401 cuando el usuario no esta autorizado
         await res.status(401).json({ mensaje: 'El usuario no existe' });
         next();//para que se vaya al siguiente middelware
     } else {
@@ -53,7 +53,7 @@ exports.autenticarUsuario = async (req, res, next) => {
                 nombre: usuario.nombre,
                 id: usuario._id
             },
-                'LLAVE SECRETA',
+                process.env.SECRET_TOKEN,
                 {//fecha de expiracion
                     expiresIn: '1h'
                 });

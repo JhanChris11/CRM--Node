@@ -2,7 +2,7 @@ const Productos = require('../models/Productos');
 
 const multer = require('multer');
 const shortid = require('shortid');
-var fs= require('fs');
+var fs = require('fs');
 var filePath = 'D:/Christian/Escritorio/CRM-Node-React/RestApis/uploads/';
 
 const configuracionMulter = {
@@ -48,7 +48,7 @@ exports.nuevoProducto = async (req, res, next) => {
 
         await producto.save();
         res.json({
-            message: 'Se agrego un producto'
+            mensaje: 'Se agrego un producto'
         });
     } catch (error) {
         console.log(error);
@@ -79,13 +79,13 @@ exports.mostrarProducto = async (req, res, next) => {
         return next();
     }
     res.json(producto);
-    
+
 }
 
 //Actualizar un producto por su ID
 exports.actualizarProducto = async (req, res, next) => {
     try {
-     
+
         //Construir un nuevo producto
         let nuevoProducto = req.body;
 
@@ -94,13 +94,13 @@ exports.actualizarProducto = async (req, res, next) => {
         if (req.file) {
 
 
-            fs.unlinkSync(filePath+productoAnterior.imagen);
+            fs.unlinkSync(filePath + productoAnterior.imagen);
             nuevoProducto.imagen = req.file.filename;
-        
+
         } else {
-             //verificar si no envio nada
+            //verificar si no envio nada
             nuevoProducto.imagen = productoAnterior.imagen;
-           
+
         }
         let producto = await Productos.findOneAndUpdate({ _id: req.params.idProducto },
             nuevoProducto, {
@@ -110,10 +110,10 @@ exports.actualizarProducto = async (req, res, next) => {
         //     mensaje:productoAnterior.imagen
         // });
         res.json(producto);
-    
-    
+
+
     } catch (error) {
-        console.log(error);
+        res.send(error);
         next();
     }
 }
@@ -121,11 +121,25 @@ exports.actualizarProducto = async (req, res, next) => {
 //Eliminar un producto por su ID
 exports.eliminarProducto = async (req, res, next) => {
     try {
-        await Productos.findByIdAndDelete({ _id: req.params.idProducto });
+        await Productos.findOneAndDelete({ _id: req.params.idProducto });
         res.json({ mensaje: 'El producto ha sido eliminado' })
+    } catch (error) {
+        res.send(error);
+        next();
+    }
+}
+
+//Busqueda de Productos
+exports.buscarProducto = async (req, res, next) => {
+    try {
+        //Obtener un query
+        const { query } = req.params;
+        const producto = await Productos.find({ nombre: RegExp(query, 'i') });
+        res.json(producto);
+        console.log(producto);
+
     } catch (error) {
         console.log(error);
         next();
     }
 }
-

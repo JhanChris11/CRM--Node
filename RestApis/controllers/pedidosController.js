@@ -15,7 +15,11 @@ exports.nuevoPedido = async (req, res, next) => {
 //Mostrar pedidos
 exports.mostrarPedidos = async (req, res, next) => {
     try {
-        const pedidos = await Pedidos.find({});
+        const pedidos = await Pedidos.find({}).populate('cliente').populate({
+            //path: Donde voy a encontrar la referencia
+            path: 'pedido.producto',
+            model: 'Productos'
+        });
         res.json(pedidos);
     } catch (error) {
         res.send(error);
@@ -24,7 +28,11 @@ exports.mostrarPedidos = async (req, res, next) => {
 }
 //Mostrar pedidos por su id
 exports.mostrarPedido = async (req, res, next) => {
-    const pedido = await Pedidos.findById(req.params.idPedido);
+    const pedido = await Pedidos.findById(req.params.idPedido).populate('cliente').populate({
+        //path: Donde voy a encontrar la referencia
+        path: 'pedido.producto',
+        model: 'Productos'
+    });
     if (!pedido) {
         res.json({ mensaje: 'El pedido no existe' });
         next();
